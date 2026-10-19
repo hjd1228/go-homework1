@@ -1,0 +1,109 @@
+### 个人博客系统后端 —— 接口用例集合
+### 用法：VS Code 安装 REST Client 扩展后逐条点击执行；
+###       或先执行注册与登录，把返回的 token 填到 @token 变量。
+### 注意：脚本会自动填充变量，手工执行时请按顺序进行。
+
+@host = http://127.0.0.1:8080
+@token = 粘贴登录接口返回的 token
+
+### 1. 注册用户
+POST {{host}}/api/register
+Content-Type: application/json
+
+{
+  "username": "alice",
+  "password": "secret123",
+  "email": "alice@example.com"
+}
+
+### 2. 重复注册同一用户名，期望 409
+POST {{host}}/api/register
+Content-Type: application/json
+
+{
+  "username": "alice",
+  "password": "secret123",
+  "email": "other@example.com"
+}
+
+### 3. 注册参数不合法（密码过短），期望 400
+POST {{host}}/api/register
+Content-Type: application/json
+
+{
+  "username": "bob",
+  "password": "123",
+  "email": "bob@example.com"
+}
+
+### 4. 登录，期望 200，从响应里复制 token 填入 @token
+POST {{host}}/api/login
+Content-Type: application/json
+
+{
+  "username": "alice",
+  "password": "secret123"
+}
+
+### 5. 登录密码错误，期望 401
+POST {{host}}/api/login
+Content-Type: application/json
+
+{
+  "username": "alice",
+  "password": "wrong-password"
+}
+
+### 6. 未携带 token 创建文章，期望 401
+POST {{host}}/api/posts
+Content-Type: application/json
+
+{
+  "title": "未认证",
+  "content": "应当被拒绝"
+}
+
+### 7. 携带 token 创建文章，期望 201
+POST {{host}}/api/posts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "第一篇文章",
+  "content": "Gin + GORM + JWT 示例"
+}
+
+### 8. 获取文章列表，期望 200
+GET {{host}}/api/posts?page=1&page_size=10
+
+### 9. 获取文章详情，期望 200
+GET {{host}}/api/posts/1
+
+### 10. 更新文章（需为作者本人），期望 200
+PUT {{host}}/api/posts/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "第一篇文章（已更新）",
+  "content": "更新后的内容"
+}
+
+### 11. 发表评论，期望 201
+POST {{host}}/api/posts/1/comments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "content": "这是一条评论"
+}
+
+### 12. 获取评论列表，期望 200
+GET {{host}}/api/posts/1/comments
+
+### 13. 获取不存在的文章，期望 404
+GET {{host}}/api/posts/999999
+
+### 14. 删除文章（需为作者本人），期望 200
+DELETE {{host}}/api/posts/1
+Authorization: Bearer {{token}}
