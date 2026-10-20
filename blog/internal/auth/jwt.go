@@ -10,9 +10,13 @@ import (
 )
 
 // ErrInvalidToken 表示 token 缺失、格式错误、签名不匹配或已过期。
+
 var ErrInvalidToken = errors.New("无效的 token")
 
 // Claims 是 JWT 中携带的自定义声明。
+// 包含用户 ID、用户名、签发时间、过期时间等标准声明。
+// 这里只保留了必要的字段，实际应用中可根据需要添加更多。
+// 例如，可以添加用户角色、权限等。
 type Claims struct {
 	UserID   uint   `json:"user_id"`
 	Username string `json:"username"`
